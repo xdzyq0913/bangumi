@@ -24,6 +24,10 @@ class DataBase():
 
 
 class Bangumi():
+    def __init__(self):
+        self.nameResult = []
+        self.scoreResult = []
+
     def GetHtml(self, html):
        req = urllib2.Request(html)
        resp = urllib2.urlopen(req)
@@ -31,8 +35,6 @@ class Bangumi():
        return respHtml
 
     def FetchInfo(self):
-        self.nameResult = []
-        self.scoreResult = []
         for page in range(1,2):
            html = self.GetHtml(address + str(page))
            soup = BeautifulSoup(html)
