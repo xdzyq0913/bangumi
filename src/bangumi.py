@@ -5,6 +5,7 @@ import urllib2
 import re
 import sys
 import sqlite3
+import time
 
 reload(sys)   
 sys.setdefaultencoding('utf8')  
@@ -15,10 +16,12 @@ class DataBase():
     def __init__(self):
         self.cx = sqlite3.connect("../db/rank.db")
         self.cu = self.cx.cursor()
-        self.cu.execute("create table BangumiRank (id integer primary key, name varchar(50),score float)")
+        rankTime = time.strftime("%Y%m%d_%H%M%S",time.localtime())
+        self.tableName = 'BangumiRank' + rankTime
+        self.cu.execute("create table %s (rank integer primary key, name varchar(50),score float)" % self.tableName)
     
-    def Insert(self,id,name,score):
-        sql = 'insert into BangumiRank values(%d,"%s",%f)' % (id, name, score)
+    def Insert(self,rank,name,score):
+        sql = 'insert into %s values(%d,"%s",%f)' % (self.tableName, rank, name, score)
         self.cu.execute(sql)
         self.cx.commit()
 
@@ -35,7 +38,7 @@ class Bangumi():
        return respHtml
 
     def FetchInfo(self):
-        for page in range(1,2):
+        for page in range(1,130):
            html = self.GetHtml(address + str(page))
            soup = BeautifulSoup(html)
            nameQuery = soup.find_all(name = "a", attrs={"class":"l","href":re.compile(r'/sub.*')})
@@ -52,8 +55,11 @@ class Bangumi():
     def WriteToDataBase(self):
         data = DataBase()
         for i in range(0,len(self.nameResult)):
-            data.Insert(i + 1, self.nameResult[i], float(self.scoreResult[i]))
-
+            if self.nameResult[i] != 'I"s Pure':
+                data.Insert(i + 1, self.nameResult[i], float(self.scoreResult[i]))
+            else:
+                self.nameResult[i] = 'I,s Pure'
+                data.Insert(i + 1, self.nameResult[i], float(self.scoreResult[i]))
 
 if __name__ == "__main__":
     bang = Bangumi()
