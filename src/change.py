@@ -31,6 +31,17 @@ def GetNewOnes():
         return
     for name in r:
         print name[0]
-if __name__ == '__main__':
-    GetNewOnes()
 
+def GetTrend(name):
+    res = []
+    table = GetTables()
+    for single in table:
+         sql = "select score from %s where name = '%s' " %(single, name)
+         cu.execute(sql)
+         r = cu.fetchall()
+         res.append(r[0][0])
+    return res
+
+if __name__ == '__main__':
+    name = u'SHOW BY ROCK!!'
+    print GetTrend(name)
